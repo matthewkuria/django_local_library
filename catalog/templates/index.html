@@ -21,4 +21,7 @@
     <li><strong>Genre:</strong> {{ num_genre }}</li>
     <li><strong>Fantasies:</strong> {{ num_genre_instances}}</li>
   </ul>
+  <p>
+    You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
+  </p>
 {% endblock %}
