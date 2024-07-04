@@ -1,7 +1,30 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views import generic
 from .models import Book, Author, BookInstance, Genre
 
+# Create a generic class based view
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by= 3
+    context_object_name = 'book_list'   # your own name for the list as a template variable
+    # queryset = Book.objects.filter(title__icontains='')[:5] # Get 5 books containing the title war
+    template_name = 'books/my_arbitrary_template_name_list.html'  # Specify your own template name/location
+
+class BookDetailView(generic.DetailView):
+    model = Book
+
+# Create a generic class based view for the authors
+class AuthorListView(generic.ListView):
+    model = Author
+    paginate_by = 3
+    context_object_name = 'author_list'
+    queryset = Author.objects.filter(first_name__contains='')[:5]
+    template_name='authors/my_arbitrary_template_name_list.html'
+
+class AuthorDetailView(generic.DetailView):
+    model = Author
+    
 def index(request):
     """View function for home page of site."""
 
@@ -18,6 +41,9 @@ def index(request):
     # Generate the number of genres
     num_genre = Genre.objects.all().count()
     num_genre_instances = Genre.objects.filter(name__exact='Fantasy').count()
+    # Number of visits to this view, as counted in the session variable.
+    num_visits = request.session.get('num_visits', 0)
+    request.session['num_visits'] = num_visits + 1
 
     context = {
         'num_books': num_books,
@@ -27,6 +53,7 @@ def index(request):
         'num_authors': num_authors,
         'num_genre': num_genre,
         'num_genre_instances': num_genre_instances,
+        'num_visits':num_visits,
     }
 
     # Render the HTML template index.html with the data in the context variable
