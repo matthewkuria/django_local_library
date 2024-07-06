@@ -16,6 +16,8 @@
   </head>
   <body>
     <div class="container-fluid">
+      {% load static%}
+      <img src="{%static 'myimages/library.webp'%}" alt="Library image" >
       <div class="row home-page">
         <div class="col-sm-2">
           {% block sidebar %}
