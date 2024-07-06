@@ -1,0 +1,22 @@
+body {
+  background-color: lightblue;
+  font-family: verdana;
+} 
+.sidebar-nav {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+.home-page li{
+  list-style: none;
+}
+.list-home li{
+  list-style: square !important;
+}
+#logout-form {
+  display: inline;
+}
+#logout-form button {
+  padding: 10px;
+  margin: 0;
+}
