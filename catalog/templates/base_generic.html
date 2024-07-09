@@ -36,9 +36,15 @@
                   </form>
                 </li>
                 <hr>
-                {% if perms.catalog.can_mark_returned%}
-                  <li>Staff</li>
-                  <li><a href="{% url 'borrowed' %}">All Borrowed</a></li>
+                {% if user.is_staff %}
+                  <ul class="sidebar-nav">
+                    <li>Staff</li>
+                     <li><a href="{% url 'borrowed' %}">All Borrowed</a></li>
+                     {% if perms.catalog.add_author %}
+                        <li><a href="{% url 'author-create' %}">Create author</a></li>
+                      {% endif %}
+                  </ul>
+                  
                 {% endif %}
               {% else %}
                 <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
