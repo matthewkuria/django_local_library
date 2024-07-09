@@ -7,6 +7,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Author
+import datetime
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+from catalog.forms import RenewBookForm
 
 # Create a generic class based view
 class BookListView(generic.ListView):
@@ -30,7 +37,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
         return (
             BookInstance.objects.filter(borrower=self.request.user)
             .filter(status__exact='o')
-            .order_by('due_back')
+            # .order_by('due_back')
         )
 # Create a  generic class based view to show librarians the books borrowed
 class BooksBorrowedListView(PermissionRequiredMixin,generic.ListView):
@@ -92,15 +99,8 @@ def index(request):
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
 # The view for the  librarians to renew books
-import datetime
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
-from catalog.forms import RenewBookForm
-
 @login_required
 @permission_required('catalog.can_mark_returned', raise_exception=True)
 def renew_book_librarian(request, pk):
@@ -162,3 +162,28 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
                 reverse("author-delete", kwargs={"pk": self.object.pk})
             )
 
+# Generic views editing a book
+class BookCreate(PermissionRequiredMixin, CreateView):
+    model = Book
+    fields = ['title', 'author', 'summary', 'isbn','genre','language']
+    permission_required = 'catalog.add_book'
+
+class BookUpdate(PermissionRequiredMixin, UpdateView):
+    model = Book
+    # Not recommended (potential security issue if more fields added)
+    fields = '__all__'
+    permission_required = 'catalog.change_book'
+
+class BookDelete(PermissionRequiredMixin, DeleteView):
+    model = Book
+    success_url = reverse_lazy('books')
+    permission_required = 'catalog.delete_book'
+
+    def form_valid(self, form):
+        try:
+            self.object.delete()
+            return HttpResponseRedirect(self.success_url)
+        except Exception as e:
+            return HttpResponseRedirect(
+                reverse("book-delete", kwargs={"pk": self.object.pk})
+            )
